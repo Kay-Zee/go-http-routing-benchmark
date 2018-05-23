@@ -21,6 +21,7 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
+	"github.com/axiomzen/middlewares"
 	"github.com/bmizerany/pat"
 	"github.com/pressly/chi"
 	// "github.com/daryl/zeus"
@@ -1428,11 +1429,18 @@ func loadPowerMux(routes []route) http.Handler {
 	}
 
 	m := powermux.NewServeMux()
+	coreRouter := m.Route("/")
+	coreRouter.Middleware(middlewares.NewCompressionMiddleware(
+		func(rw http.ResponseWriter, req *http.Request, err interface{}) {
+		},
+	))
+	//coreRouter.Middleware(middlewares.NewCompressionMiddleware(-1))
+
 	for _, route := range routes {
 		if route.path != "/" && strings.HasSuffix(route.path, "/") {
 			route.path = route.path + "*"
 		}
-		r := m.Route(route.path)
+		r := coreRouter.Route(route.path)
 		switch route.method {
 		case "GET":
 			r.GetFunc(h)
@@ -1451,7 +1459,13 @@ func loadPowerMux(routes []route) http.Handler {
 
 func loadPowerMuxSingle(method, path string, handler http.HandlerFunc) http.Handler {
 	m := powermux.NewServeMux()
-	r := m.Route(path)
+	coreRouter := m.Route("/")
+	coreRouter.Middleware(middlewares.NewCompressionMiddleware(
+		func(rw http.ResponseWriter, req *http.Request, err interface{}) {
+		},
+	))
+	//coreRouter.Middleware(middlewares.NewCompressionMiddleware(-1))
+	r := coreRouter.Route(path)
 
 	switch method {
 	case "GET":

@@ -63,6 +63,7 @@ func benchRequest(b *testing.B, router http.Handler, r *http.Request) {
 	u := r.URL
 	rq := u.RawQuery
 	r.RequestURI = u.RequestURI()
+	r.Header.Add("Accept-Encoding", "gzip")
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -76,6 +77,7 @@ func benchRequest(b *testing.B, router http.Handler, r *http.Request) {
 func benchRoutes(b *testing.B, router http.Handler, routes []route) {
 	w := new(mockResponseWriter)
 	r, _ := http.NewRequest("GET", "/", nil)
+	r.Header.Add("Accept-Encoding", "gzip")
 	u := r.URL
 	rq := u.RawQuery
 
