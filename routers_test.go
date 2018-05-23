@@ -2,7 +2,8 @@ package main
 
 import (
 	"bytes"
-	"compress/gzip"
+	//"compress/gzip"
+	"compress/flate"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -62,7 +63,8 @@ func TestRouters(t *testing.T) {
 
 	for _, router := range routers {
 		req, _ := http.NewRequest("GET", "/", nil)
-		req.Header.Add("Accept-Encoding", "gzip")
+		//req.Header.Add("Accept-Encoding", "gzip")
+		req.Header.Add("Accept-Encoding", "deflate")
 		u := req.URL
 		rq := u.RawQuery
 
@@ -86,7 +88,8 @@ func TestRouters(t *testing.T) {
 					// try gzipping it
 					var b bytes.Buffer
 					//wr := gzip.NewWriter(&b)
-					wr, _ := gzip.NewWriterLevel(&b, gzip.BestSpeed)
+					//wr, _ := gzip.NewWriterLevel(&b, gzip.BestSpeed)
+					wr, _ := flate.NewWriter(&b, flate.BestSpeed)
 					wr.Write([]byte(route.path))
 					wr.Close()
 					if w.Body.String() != b.String() {
